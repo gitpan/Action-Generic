@@ -1,40 +1,158 @@
-Action-Generic version 0.01
-===========================
+NAME
+    Action::Generic - Generic actions in a OO way
 
-The README is used to introduce the module and provide instructions on
-how to install the module, any machine dependencies it may have (for
-example C compilers and installed libraries) and any other information
-that should be provided before the module is installed.
+SYNOPSIS
+     my $controller = Action::Generic->new();
 
-A README file is required for CPAN modules since CPAN extracts the
-README file from a module distribution so that people browsing the
-archive can use it get an idea of the modules uses. It is usually a
-good idea to provide version information here so that people can
-decide whether fixes for the module are worth downloading.
+     my $action = $controller->action( 
+       type => 'System',
+       name => 'List Files in my Homedir',
+       params => [('ls', '-l', '~')],  
+     );
 
-INSTALLATION
+     my $custom_action = $controller->action(
+       type => 'Custom',
+       name => 'A Custom Action',
+       code => sub { ... }
+     );
 
-To install this module type the following:
+     $controller->add_actions( $action, $custom_action );
 
-   perl Makefile.PL
-   make
-   make test
-   make install
+     $controller->run;
 
-DEPENDENCIES
+     use Data::Dumper;
+     print Dumper( $controller->results );
 
-This module requires these other modules and libraries:
+DESCRIPTION
+    Action::Generic is intended to create a simple framework for executing
+    complex bits of code in a slighly modular, OO-ish way.
 
-  blah blah blah
+    It works by creating a "controller" object
 
-COPYRIGHT AND LICENCE
+     my $controller = Action::Generic->new(
+      quiet => 0    # make some noise, baby
+     );
 
-Put the correct copyright and licence information here.
+    which consumes various actions. First, use the "action" method to create
+    an action, passing it any relevent parameters..
 
-Copyright (C) 2010 by Dave
+     my $action = $controller->action( 
+       type => 'Custom',
+       name => 'Hello, world!',
+       code => sub { print "Hello, world!\n" }
+     );
 
-This library is free software; you can redistribute it and/or modify
-it under the same terms as Perl itself, either Perl version 5.10.0 or,
-at your option, any later version of Perl 5 you may have available.
+    And push this action to the end of the stack.
 
+     $controller->add_actions( $action );
+
+    Each action is run, in the order added, optionally stopping further
+    execution.
+
+    Finally, should any of the actions have any notable result output, it is
+    stored in a hashref whose keys are the name of the action.
+
+     print Dumper( $controller->results );  # Lots of stuff
+
+    Action::Generic ships with only a handful of actions. Extending them or
+    adding more is a trivial task (see 'Creating Custom Actions').
+
+  Creating New Action Objects
+    As mentioned below, there are a few actions that come by default --
+    basically what I need to accomplish my goals -- but many may be added
+    later. By you. I'm done with this!
+
+    Every action has two required parameters:
+
+    type
+       The type of the action determines what sort of action is being
+       created. For extending purposes, a type of "Custom" is shorthand for
+       "Action::Generic::Plugin::Custom". In fact, any package name may be
+       supplied here, as long as it implements a few basic methods (see
+       'Creating Custom Actions'). Must always be a name -- not a reference.
+
+    name
+       The name of the action. For the most part, this is unused. However,
+       the action name is available to the action during execution and is
+       also used in any errors that may occur (to help you track that shit
+       down).
+
+  Action Types
+    System
+       The "System" is an easy way to execute some bit of code directly via
+       the "system" method. It takes only one parameter, "params" which
+       should be an arrayref containing a list of arguments for the "system"
+       call.
+
+       No checking is done to ensure you are trying to do something sane. Or
+       safe. Don't be stupid.
+
+    Custom
+       "Custom" executes some arbitrary coderef, stored in the parameter
+       "code".
+
+    Template
+       Provides a simple interface to the Template Toolkit (Template)
+       rendering engine thinger. You provide the template and the stash, and
+       get the rendered results as a scalar. Adventurous persons are welcome
+       to reinvent the wheel and re-make TT.
+
+  Results
+    The hashref, obtained via the controller's "results" method, contains
+    some information about the running of the actions.
+
+    Each key is the name of the action. You should probably make sure your
+    action names are unique. I would. But we don't check for that.
+
+    Underneath, there is some information guaranteed to be present:
+
+    type
+       The type of the action. This is the fully-qualified name of the
+       class. In most cases, it is Action::Generic::$some_action_name
+
+    was_run
+       A boolean indicating if this particular action was actually run or
+       not. Useful if something horrible went wrong or the call
+
+  Creating Custom Actions
+    Actions may be created two different ways. The "action" method will
+    first look for plugins located in Action::Generic::Plugin namespace.
+
+    Failing that, it will attempt to "require" the action type as a
+    fully-qualified package. In both cases, the resulting object must
+    provide a few behaviours. The actions distributed with this package are
+    written in Moose and use that particular terminology. This author
+    suggests any additional actions also use Moose.
+
+    The constructor "new()" will be called with the arguments passed from
+    the "action()" method on the controller, with the "type" removed (you
+    already know what sort of thingy you're dealing with if you're making a
+    new one, right?).
+
+    A "name" attribute.
+       This should be a 'Str'.
+
+    A "_results" attribute.
+       This should be a 'HashRef'. The controller object will query each
+       action, after running, for the results. Additionally, there should be
+       two keys in the "_result" hashref, as described in the section
+       "Results".
+
+       Additional information is encouraged where appropriate.
+
+    A method, "run()" must be present.
+       "run()" will be called with no arguments. Configuration should be
+       done when creating the object, not running it. "run()" should
+       probably use the opportunity to set up the "_results" hashref
+       properly.
+
+LICSENSE AND COPYING
+    This library is free softtware; you may redistribute and/or modify it
+    under the same terms as Perl itself.
+
+BUGS
+    Probably. Patches welcome!
+
+AUTHOR
+    Dave Houston "<dhouston@cpan.org>", 2010
 

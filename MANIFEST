@@ -10,8 +10,12 @@ inc/Module/Install/WriteAll.pm
 lib/Action/Generic.pm
 lib/Action/Generic/Plugin/Custom.pm
 lib/Action/Generic/Plugin/System.pm
+lib/Action/Generic/Plugin/Template.pm
 Makefile.PL
 MANIFEST			This list of files
 META.yml
 README
 t/Action-Generic.t
+t/Plugin-Custom.t
+t/Plugin-System.t
+t/Plugin-Template.t

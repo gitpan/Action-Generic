@@ -5,12 +5,18 @@ use Carp;
 
 use 5.008001;
 
-our $VERSION = '0.000002'; # 0.0.2
+our $VERSION = '0.000003'; # 0.0.3
 
 has '_action_list' => ( 
 	is	=> 'rw',
 	isa => 'ArrayRef',
 	default => sub { [] } 
+);
+
+has 'quiet' => ( 
+	is => 'rw',
+	isa => 'Bool',
+	default => 1
 );
 
 sub action { 
@@ -48,6 +54,9 @@ sub add_actions {
 sub run { 
 	my( $self ) = @_;
 	for( @{$self->_action_list()} ) { 
+		unless( $self->quiet ) { 
+			print "[Action] ", $_->name, "\n";
+		}
 		$_->run() or croak;;
 	}
 }
@@ -92,7 +101,9 @@ OO-ish way.
 
 It works by creating a "controller" object
 
- my $controller = Action::Generic->new();
+ my $controller = Action::Generic->new(
+  quiet => 0	# make some noise, baby
+ );
 
 which consumes various actions.  First, use the C<action> method
 to create an action, passing it any relevent parameters..
@@ -132,9 +143,9 @@ Every action has two required parameters:
 
 The type of the action determines what sort of action is being created.
 For extending purposes, a type of C<Custom> is shorthand for 
-C<Action::Generic::Custom>.  In fact, any package name may be supplied 
-here, as long as it implements a few basic methods (see 'Creating Custom
-Actions').  Must always be a name -- not a reference.
+C<Action::Generic::Plugin::Custom>.  In fact, any package name may 
+be supplied here, as long as it implements a few basic methods (see 
+'Creating Custom Actions').  Must always be a name -- not a reference.
 
 =item name
 
@@ -162,6 +173,13 @@ safe.  Don't be stupid.
 
 C<Custom> executes some arbitrary coderef, stored in the parameter
 C<code>.  
+
+=item Template
+
+Provides a simple interface to the Template Toolkit (L<Template>) rendering
+engine thinger.  You provide the template and the stash, and get the
+rendered results as a scalar.  Adventurous persons are welcome to reinvent
+the wheel and re-make TT.
 
 =back
 
@@ -229,7 +247,8 @@ the opportunity to set up the C<_results> hashref properly.
 
 =head1 LICSENSE AND COPYING
 
-Distributed under the same terms as Perl itself.
+This library is free softtware; you may redistribute and/or modify
+it under the same terms as Perl itself.
 
 =head1 BUGS
 

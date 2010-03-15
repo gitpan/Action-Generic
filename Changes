@@ -1,6 +1,5 @@
 Revision history for Perl extension Action::Generic.
-
-0.01  Wed Mar 10 19:21:13 2010
-	- original version; created by h2xs 1.23 with options
-		-AXc -n Action::Generic
-
+0.0.3 
+   - Addeed Template action; tests, etc.  
+0.0.1  Wed Mar 10 19:21:13 2010
+	- Original version.
