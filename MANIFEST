@@ -8,6 +8,7 @@ inc/Module/Install/Metadata.pm
 inc/Module/Install/Win32.pm
 inc/Module/Install/WriteAll.pm
 lib/Action/Generic.pm
+lib/Action/Generic.pod
 lib/Action/Generic/Plugin/Custom.pm
 lib/Action/Generic/Plugin/System.pm
 lib/Action/Generic/Plugin/Template.pm

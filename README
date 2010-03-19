@@ -57,6 +57,23 @@ DESCRIPTION
     Action::Generic ships with only a handful of actions. Extending them or
     adding more is a trivial task (see 'Creating Custom Actions').
 
+  Methods
+    new()
+       Creates a new controller. An optional parameter "quiet" will, when
+       true make the thing spit out a lot of extra crap.
+
+    add_actions()
+       Takes a list of actions. Adds them to the back of the queue, in order
+       passed. Subsequent calls add in order. Order! Returns nothing of
+       note.
+
+    run()
+       Runs each action in the order added.
+
+    results()
+       Returns an ARRAYREF containing the results of the run, in order of
+       running. Contents of each element vary depending on the action run.
+
   Creating New Action Objects
     As mentioned below, there are a few actions that come by default --
     basically what I need to accomplish my goals -- but many may be added
@@ -146,7 +163,7 @@ DESCRIPTION
        probably use the opportunity to set up the "_results" hashref
        properly.
 
-LICSENSE AND COPYING
+LICENSE AND COPYING
     This library is free softtware; you may redistribute and/or modify it
     under the same terms as Perl itself.
 
